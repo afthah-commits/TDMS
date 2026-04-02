@@ -5,11 +5,26 @@
 ### 1. Push Updated Code
 ```bash
 git add .
-git commit -m "Fix CORS configuration"
+git commit -m "Fix CORS and database configuration"
 git push
 ```
 
-### 2. Add Environment Variable in Render
+### 2. Fix Database Issue (Choose One)
+
+**Option A: Quick Fix - Use SQLite** (Recommended for immediate testing)
+- No setup needed! Code will auto-use SQLite if DATABASE_URL is empty
+- Just push code and deploy
+
+**Option B: Production Setup - Create PostgreSQL**
+1. Render Dashboard → New + → PostgreSQL
+2. Name: `tdms-db`, Plan: Free
+3. After creation, connect to backend:
+   - Backend service → Environment → Add from Database
+   - Select tdms-db → Internal Database URL
+
+See DATABASE_SETUP_GUIDE.md for detailed instructions.
+
+### 3. Add CORS Environment Variable in Render
 1. Go to: https://dashboard.render.com
 2. Select: `tdms-backend`
 3. Go to: Environment tab
@@ -18,7 +33,7 @@ git push
    - Value: `https://tdms-one.vercel.app`
 5. Click: Save Changes
 
-### 3. Wait for Deployment
+### 4. Wait for Deployment
 - Render will auto-deploy (3-5 minutes)
 - Watch the deployment in Logs tab
 
