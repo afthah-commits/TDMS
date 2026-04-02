@@ -1,0 +1,31 @@
+# Python / Django
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+.Python
+env/
+venv/
+*.egg
+*.egg-info/
+dist/
+build/
+backend/.env
+backend/db.sqlite3
+backend/staticfiles/
+backend/media/
+
+# Node / React
+node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+frontend/.env.production
+
+# Editor / OS
+.vscode/
+.idea/
+*.DS_Store
+Thumbs.db
+*.swp

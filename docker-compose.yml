@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=tdms_db
+      - POSTGRES_USER=tdms_user
+      - POSTGRES_PASSWORD=tdms_password
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: ./backend
+    command: gunicorn core.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=False
+      - SECRET_KEY=production_secret_key_change_me_in_real_deployment
+      - DATABASE_URL=postgres://tdms_user:tdms_password@db:5432/tdms_db
+      - ALLOWED_HOSTS=localhost,127.0.0.1,backend
+    depends_on:
+      - db
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "4173:4173"
+    environment:
+      - VITE_API_URL=http://localhost:8000/api/
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
