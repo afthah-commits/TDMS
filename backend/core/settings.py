@@ -142,9 +142,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # CORS - restrict to frontend URL in production
 CORS_ALLOWED_ORIGINS = os.getenv(
     'CORS_ALLOWED_ORIGINS',
-    'http://localhost:5173,http://localhost:3000'
+    'http://localhost:5173,http://localhost:3000,https://tdms-one.vercel.app'
 ).split(',')
 CORS_ALLOW_ALL_ORIGINS = DEBUG  # Allow all only in dev
+CORS_ALLOW_CREDENTIALS = True
 
 # Custom User Model
 AUTH_USER_MODEL = 'users.User'
