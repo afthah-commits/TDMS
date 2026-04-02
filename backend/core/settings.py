@@ -88,10 +88,12 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-# Get DATABASE_URL from environment, handling empty strings
+# Get DATABASE_URL from environment, handling empty strings and placeholder values
 database_url = os.getenv('DATABASE_URL', '').strip()
 
-if database_url:
+# Check if DATABASE_URL is actually set with a valid value
+# Exclude empty strings, 'None', 'null', and other placeholder values
+if database_url and database_url not in ['None', 'null', 'undefined']:
     # Use the provided DATABASE_URL (PostgreSQL, etc.)
     DATABASES = {
         'default': dj_database_url.parse(database_url, conn_max_age=600)
