@@ -23,7 +23,7 @@ Every physical donation generates an immutable timeline logging its transition (
 - Employs **ReportLab** to generate beautiful, formal PDF tax/receipt documents in-memory and attaches them to dynamically customized "Thank You" confirmation emails for all verified monetary donations.
 
 ### 4. Advanced Frontend Aesthetics
-The entire user interface operates on a meticulously handcrafted **Pure Vanilla CSS** architecture. It implements a premium "Deep Space" visual design combining smooth glassmorphism, dynamic gradients, responsive viewports, and modern hover states, entirely free from external stylistic dependencies like Tailwind.
+The entire user interface operates on a meticulously handcrafted **glassmorphism-inspired CSS architecture** and is enhanced with Tailwind utility-driven styling for faster layout composition and responsive design. It delivers a premium "Deep Space" visual experience with dynamic gradients, responsive viewports, and modern hover states.
 
 ### 5. Automated CI Testing
 Engineered with rigorous Django `TestCase` integrations covering auth logic, API permissions, timeline constraints, and mocked Razorpay endpoint validations.
