@@ -1,5 +1,9 @@
 {
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
-  ]
+  ],
+  "env": {
+    "VITE_API_URL": "https://tdms-backend.onrender.com/api/",
+    "VITE_GOOGLE_CLIENT_ID": "@google_client_id"
+  }
 }

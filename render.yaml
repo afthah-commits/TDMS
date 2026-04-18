@@ -1,0 +1,46 @@
+services:
+  - type: web
+    name: tdms-backend
+    runtime: python3
+    buildCommand: pip install -r requirements.txt
+    startCommand: python manage.py migrate && gunicorn core.wsgi:application --bind 0.0.0.0:$PORT
+    envVars:
+      - key: DEBUG
+        value: False
+      - key: SECRET_KEY
+        value: production_secret_key_change_me_in_real_deployment
+      - key: DATABASE_URL
+        fromSecret: database_url
+      - key: ALLOWED_HOSTS
+        value: tdms-backend.onrender.com,localhost,127.0.0.1
+      - key: RAZORPAY_KEY_ID
+        fromSecret: razorpay_key_id
+      - key: RAZORPAY_KEY_SECRET
+        fromSecret: razorpay_key_secret
+      - key: GOOGLE_CLIENT_ID
+        fromSecret: google_client_id
+      - key: EMAIL_BACKEND
+        value: django.core.mail.backends.smtp.EmailBackend
+      - key: EMAIL_HOST
+        value: smtp.gmail.com
+      - key: EMAIL_PORT
+        value: 587
+      - key: EMAIL_USE_TLS
+        value: True
+      - key: EMAIL_HOST_USER
+        fromSecret: email_host_user
+      - key: EMAIL_HOST_PASSWORD
+        fromSecret: email_host_password
+      - key: DEFAULT_FROM_EMAIL
+        value: support@tdmsngo.org
+
+  - type: web
+    name: tdms-frontend
+    runtime: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://tdms-backend.onrender.com/api/
+      - key: VITE_GOOGLE_CLIENT_ID
+        fromSecret: google_client_id
