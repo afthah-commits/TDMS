@@ -4,7 +4,7 @@ services:
     runtime: python
     buildCommand: pip install -r requirements.txt
     startCommand: python manage.py migrate && gunicorn core.wsgi:application --bind 0.0.0.0:$PORT
-    env:
+    envVars:
       - key: DEBUG
         value: False
       - key: SECRET_KEY
@@ -34,11 +34,11 @@ services:
       - key: DEFAULT_FROM_EMAIL
         value: support@tdmsngo.org
 
-  - type: static
+  - type: web
     name: tdms-frontend
     buildCommand: npm install && npm run build
     staticPublishPath: dist
-    env:
+    envVars:
       - key: VITE_API_URL
         value: https://tdms-backend.onrender.com/api/
       - key: VITE_GOOGLE_CLIENT_ID
