@@ -1,4 +1,5 @@
 import razorpay
+from razorpay.errors import BadRequestError
 from django.conf import settings
 from rest_framework import views, status, permissions
 from rest_framework.response import Response
@@ -17,28 +18,39 @@ class CreateOrderView(views.APIView):
         if not amount:
             return Response({'error': 'Amount is required'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Create order in Razorpay (amount must be in paise / smallest currency unit)
-        razorpay_order = client.order.create(dict(
-            amount=int(float(amount) * 100),
-            currency=currency,
-            payment_capture='0'
-        ))
+        try:
+            razorpay_order = client.order.create(dict(
+                amount=int(float(amount) * 100),
+                currency=currency,
+                payment_capture='0'
+            ))
 
-        # Save order in DB
-        donation = MonetaryDonation.objects.create(
-            donor=request.user,
-            amount=amount,
-            currency=currency,
-            razorpay_order_id=razorpay_order['id'],
-            status='PENDING'
-        )
+            donation = MonetaryDonation.objects.create(
+                donor=request.user,
+                amount=amount,
+                currency=currency,
+                razorpay_order_id=razorpay_order['id'],
+                status='PENDING'
+            )
 
-        serializer = MonetaryDonationSerializer(donation)
-        return Response({
-            'order_id': razorpay_order['id'],
-            'donation': serializer.data,
-            'razorpay_key': settings.RAZORPAY_KEY_ID
-        })
+            serializer = MonetaryDonationSerializer(donation)
+            return Response({
+                'order_id': razorpay_order['id'],
+                'donation': serializer.data,
+                'razorpay_key': settings.RAZORPAY_KEY_ID,
+                'mode': 'razorpay'
+            })
+        except BadRequestError as error:
+            if 'Authentication failed' in str(error):
+                return Response(
+                    {
+                        'error': 'Razorpay authentication failed. Please set valid RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in backend/.env.',
+                    },
+                    status=status.HTTP_401_UNAUTHORIZED,
+                )
+            return Response({'error': str(error)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as error:
+            return Response({'error': str(error)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class VerifyPaymentView(views.APIView):
     permission_classes = [permissions.IsAuthenticated]

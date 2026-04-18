@@ -54,14 +54,17 @@ pip install -r requirements.txt
 ```
 
 **Environment Variables**
-Create a `.env` file in the `/backend` directory:
+Create a `.env` file in the `/backend` directory. Use `backend/.env.example` as a starting point:
 ```env
 SECRET_KEY=your_django_secret_key_here
 DEBUG=True
 ALLOWED_HOSTS=localhost,127.0.0.1
+DATABASE_URL=sqlite:///db.sqlite3
 RAZORPAY_KEY_ID=rzp_test_your_razorpay_key_id
 RAZORPAY_KEY_SECRET=your_razorpay_secret
 ```
+
+For the frontend, create `frontend/.env` from `frontend/.env.example` if you need a custom API URL.
 
 **Database & Server**
 ```bash

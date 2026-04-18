@@ -5,43 +5,59 @@ import api from '../services/api';
 const MonetaryDonationForm = ({ onDonationSuccess }) => {
     const [amount, setAmount] = useState('');
     const [loading, setLoading] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
+    const [error, setError] = useState('');
     const { Razorpay } = useRazorpay();
 
     const handlePayment = async (e) => {
         e.preventDefault();
-        if (!amount || amount <= 0) return;
+        if (!amount || Number(amount) <= 0) return;
 
+        setError('');
+        setSuccessMessage('');
         setLoading(true);
 
         try {
-            // 1. Create order on backend
             const { data } = await api.post('payments/create-order/', { amount });
+
+            if (!data.order_id || !data.razorpay_key) {
+                const serverMessage = data.error || 'Unable to create payment order. Please check Razorpay settings.';
+                throw new Error(serverMessage);
+            }
+
+            if (!Razorpay) {
+                throw new Error('Razorpay checkout script failed to load. Reload the page.');
+            }
 
             const options = {
                 key: data.razorpay_key,
-                amount: data.donation.amount * 100, // in paise
+                amount: Number(amount) * 100,
                 currency: data.donation.currency,
                 name: 'TDMS NGO',
                 description: 'Thank you for your generous contribution',
                 order_id: data.order_id,
                 handler: async (response) => {
-                    // 2. Verify payment on backend
                     try {
                         await api.post('payments/verify/', {
                             razorpay_payment_id: response.razorpay_payment_id,
                             razorpay_order_id: response.razorpay_order_id,
                             razorpay_signature: response.razorpay_signature
                         });
-                        alert('Payment successful!');
+                        setSuccessMessage('Donation successful! Thank you for supporting TDMS.');
                         setAmount('');
                         if (onDonationSuccess) onDonationSuccess();
                     } catch (verifyError) {
                         console.error('Payment verification failed:', verifyError);
-                        alert('Payment failed verification.');
+                        setError('Payment failed verification. Please contact support.');
+                    }
+                },
+                modal: {
+                    ondismiss: () => {
+                        if (!successMessage) setLoading(false);
                     }
                 },
                 theme: {
-                    color: '#10b981', // success color
+                    color: '#10b981'
                 }
             };
 
@@ -49,7 +65,7 @@ const MonetaryDonationForm = ({ onDonationSuccess }) => {
             rzpay.open();
         } catch (error) {
             console.error('Error initiating payment:', error);
-            alert('Error initiating payment. Please try again.');
+            setError(error.message || 'Error initiating payment. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -59,7 +75,18 @@ const MonetaryDonationForm = ({ onDonationSuccess }) => {
         <div className="glass-panel" style={{ borderTop: '4px solid var(--success)' }}>
             <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--success)', marginBottom: '1rem' }}>Make a Financial Contribution</h2>
             <p className="text-secondary" style={{ fontSize: '0.875rem', marginBottom: '1.5rem' }}>Your monetary donations help us cover logistics and purchase essential items for those in need.</p>
-            
+
+            {error && (
+                <div style={{ background: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)', padding: '1rem', borderRadius: '0.75rem', fontSize: '0.875rem', border: '1px solid rgba(239, 68, 68, 0.3)', fontWeight: 500, marginBottom: '1.5rem' }}>
+                    {error}
+                </div>
+            )}
+            {successMessage && (
+                <div style={{ background: 'rgba(16, 185, 129, 0.12)', color: 'var(--success)', padding: '1rem', borderRadius: '0.75rem', fontSize: '0.875rem', border: '1px solid rgba(16, 185, 129, 0.3)', fontWeight: 500, marginBottom: '1.5rem' }}>
+                    {successMessage}
+                </div>
+            )}
+
             <form onSubmit={handlePayment}>
                 <div style={{ marginBottom: '1.5rem' }}>
                     <label className="input-label">Amount (INR)</label>
@@ -79,6 +106,7 @@ const MonetaryDonationForm = ({ onDonationSuccess }) => {
                         />
                     </div>
                 </div>
+
                 <button
                     type="submit"
                     disabled={loading || !amount}
@@ -96,12 +124,13 @@ const MonetaryDonationForm = ({ onDonationSuccess }) => {
                         transition: 'transform 0.2s, box-shadow 0.2s',
                         boxShadow: '0 4px 14px rgba(16, 185, 129, 0.4)'
                     }}
-                    onMouseOver={e => !loading && amount && (e.currentTarget.style.transform = 'translateY(-2px)')}
-                    onMouseOut={e => !loading && amount && (e.currentTarget.style.transform = 'translateY(0)')}
+                    onMouseOver={(e) => !loading && amount && (e.currentTarget.style.transform = 'translateY(-2px)')}
+                    onMouseOut={(e) => !loading && amount && (e.currentTarget.style.transform = 'translateY(0)')}
                 >
-                    {loading ? 'Processing...' : 'Donate Securely via Razorpay'}
+                    {loading ? 'Processing...' : 'Donate Securely'}
                 </button>
             </form>
+
         </div>
     );
 };
