@@ -180,6 +180,9 @@ SIMPLE_JWT = {
 RAZORPAY_KEY_ID = os.getenv('RAZORPAY_KEY_ID', 'rzp_test_dummykeyid12345')
 RAZORPAY_KEY_SECRET = os.getenv('RAZORPAY_KEY_SECRET', 'dummysecretkey1234567890')
 
+# Google OAuth Settings
+GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID', '417918006342-f30fjvosfb6vm19b27qu6jkaca9or851.apps.googleusercontent.com')
+
 # Email Settings
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = 'support@tdmsngo.org'

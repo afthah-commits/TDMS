@@ -1,5 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
 import { AuthContext } from '../context/AuthContext';
 import { Lock, User, ArrowRight, Shield } from 'lucide-react';
 
@@ -7,7 +8,7 @@ const Login = () => {
     const [credentials, setCredentials] = useState({ username: '', password: '' });
     const [error, setError] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const { login, user, loading } = useContext(AuthContext);
+    const { login, loginWithGoogle, user, loading } = useContext(AuthContext);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -26,6 +27,21 @@ const Login = () => {
         setCredentials({...credentials, [e.target.name]: e.target.value});
     };
 
+    const handleGoogleSuccess = async (credentialResponse) => {
+        setError(null);
+        setIsSubmitting(true);
+        try {
+            const loggedInUser = await loginWithGoogle(credentialResponse.credential);
+            if (loggedInUser) {
+                redirectUser(loggedInUser.role);
+            }
+        } catch (err) {
+            setError('Google login failed. Please try again.');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
@@ -33,6 +49,7 @@ const Login = () => {
         try {
             const loggedInUser = await login(credentials.username, credentials.password);
             if (loggedInUser) {
+                navigate('/donor-dashboard');
                 redirectUser(loggedInUser.role);
             }
         } catch (err) {
@@ -55,6 +72,9 @@ const Login = () => {
                         <Link to="/register" style={{ fontWeight: 500, color: 'var(--accent)', textDecoration: 'none' }}>
                             Sign up today
                         </Link>
+                    </p>
+                    <p className="text-secondary" style={{ marginTop: '0.5rem', fontSize: '0.875rem' }}>
+                        If you already have an account, use this form to log in instead of creating a new one.
                     </p>
                 </div>
                 
@@ -112,6 +132,22 @@ const Login = () => {
                         {isSubmitting ? 'Signing in...' : 'Sign In'}
                         {!isSubmitting && <ArrowRight style={{ marginLeft: '0.5rem', height: '1rem', width: '1rem' }} />}
                     </button>
+
+                    <div style={{ margin: '2rem 0', display: 'flex', alignItems: 'center' }}>
+                        <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }}></div>
+                        <span style={{ margin: '0 1rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>or</span>
+                        <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }}></div>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                        <GoogleLogin
+                            onSuccess={handleGoogleSuccess}
+                            onError={() => setError('Google login failed. Please try again.')}
+                            text="signin_with"
+                            theme="dark"
+                            size="large"
+                        />
+                    </div>
                 </form>
             </div>
             

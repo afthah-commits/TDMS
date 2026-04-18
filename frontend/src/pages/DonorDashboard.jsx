@@ -9,7 +9,12 @@ const DonorDashboard = () => {
         item_type: 'CLOTHES',
         quantity: 1,
         description: '',
-        pickup_location: ''
+        name: '',
+        house_name: '',
+        pincode: '',
+        landmark: '',
+        city: '',
+        district: ''
     });
     const [loading, setLoading] = useState(false);
 
@@ -34,9 +39,15 @@ const DonorDashboard = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            await api.post('donations/physical/', formData);
+            const pickup_location = `Name: ${formData.name}, House name: ${formData.house_name}, Pincode: ${formData.pincode}, Landmark: ${formData.landmark}, City: ${formData.city}, District: ${formData.district}`;
+            await api.post('donations/physical/', {
+                item_type: formData.item_type,
+                quantity: formData.quantity,
+                description: formData.description,
+                pickup_location
+            });
             alert('Donation submitted successfully!');
-            setFormData({ item_type: 'CLOTHES', quantity: 1, description: '', pickup_location: '' });
+            setFormData({ item_type: 'CLOTHES', quantity: 1, description: '', name: '', house_name: '', pincode: '', landmark: '', city: '', district: '' });
             fetchDonations();
         } catch (error) {
             console.error('Failed to submit donation:', error);
@@ -102,16 +113,76 @@ const DonorDashboard = () => {
                             ></textarea>
                         </div>
                         <div>
-                            <label className="input-label">Pickup Location (Address)</label>
-                            <textarea
-                                name="pickup_location"
-                                value={formData.pickup_location}
+                            <label className="input-label">Name</label>
+                            <input
+                                type="text"
+                                name="name"
+                                value={formData.name}
                                 onChange={handleInputChange}
                                 required
-                                rows="2"
                                 className="input-field"
-                                style={{ resize: 'vertical' }}
-                            ></textarea>
+                                placeholder="Full name"
+                            />
+                        </div>
+                        <div>
+                            <label className="input-label">House Name</label>
+                            <input
+                                type="text"
+                                name="house_name"
+                                value={formData.house_name}
+                                onChange={handleInputChange}
+                                required
+                                className="input-field"
+                                placeholder="House/flat name"
+                            />
+                        </div>
+                        <div>
+                            <label className="input-label">Pincode</label>
+                            <input
+                                type="text"
+                                name="pincode"
+                                value={formData.pincode}
+                                onChange={handleInputChange}
+                                required
+                                className="input-field"
+                                placeholder="Postal code"
+                            />
+                        </div>
+                        <div>
+                            <label className="input-label">Landmark</label>
+                            <input
+                                type="text"
+                                name="landmark"
+                                value={formData.landmark}
+                                onChange={handleInputChange}
+                                required
+                                className="input-field"
+                                placeholder="Nearby landmark"
+                            />
+                        </div>
+                        <div>
+                            <label className="input-label">City</label>
+                            <input
+                                type="text"
+                                name="city"
+                                value={formData.city}
+                                onChange={handleInputChange}
+                                required
+                                className="input-field"
+                                placeholder="City"
+                            />
+                        </div>
+                        <div>
+                            <label className="input-label">District</label>
+                            <input
+                                type="text"
+                                name="district"
+                                value={formData.district}
+                                onChange={handleInputChange}
+                                required
+                                className="input-field"
+                                placeholder="District"
+                            />
                         </div>
                         <button
                             type="submit"

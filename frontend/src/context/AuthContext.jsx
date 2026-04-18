@@ -35,6 +35,21 @@ export const AuthProvider = ({ children }) => {
         return profileResponse.data;
     };
 
+    const loginWithGoogle = async (googleToken) => {
+        try {
+            const response = await api.post('users/google-auth/', { token: googleToken });
+            localStorage.setItem('access_token', response.data.access);
+            localStorage.setItem('refresh_token', response.data.refresh);
+
+            const profileResponse = await api.get('users/profile/');
+            setUser(profileResponse.data);
+            return profileResponse.data;
+        } catch (error) {
+            console.error('Google login failed:', error);
+            throw error;
+        }
+    };
+
     const logout = () => {
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
@@ -42,7 +57,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, loading }}>
+        <AuthContext.Provider value={{ user, login, loginWithGoogle, logout, loading }}>
             {children}
         </AuthContext.Provider>
     );

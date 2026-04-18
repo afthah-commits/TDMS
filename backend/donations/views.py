@@ -37,16 +37,32 @@ class PhysicalDonationViewSet(viewsets.ModelViewSet):
             notes=notes
         )
 
-        # Send email notification
-        try:
-            send_mail(
-                subject='Update: Your TDMS Physical Donation',
-                message=f'Hello {donation.donor.username},\n\nThe status of your physical donation ({donation.quantity}x {donation.item_type}) has been updated from {old_status} to {new_status}.\n\nThank you for making a difference!',
-                from_email=None, # Uses default from setting
-                recipient_list=[donation.donor.email],
-                fail_silently=True,
-            )
-        except Exception as e:
-            print(f"Failed to send email: {e}")
+        # Send email notification only when delivered
+        if new_status == 'DELIVERED':
+            try:
+                send_mail(
+                    subject='🎉 Your TDMS Physical Donation Has Been Delivered!',
+                    message=f'''Hello {donation.donor.username},
+
+Great news! Your physical donation has been successfully delivered to those in need.
+
+Donation Details:
+- Item: {donation.quantity}x {donation.item_type}
+- Description: {donation.description or 'N/A'}
+- Pickup Location: {donation.pickup_location}
+
+Thank you for your generous contribution to TDMS NGO. Your support helps make a real difference in our community.
+
+We appreciate your commitment to helping others!
+
+Best regards,
+TDMS NGO Team''',
+                    from_email=None, # Uses default from setting
+                    recipient_list=[donation.donor.email],
+                    fail_silently=True,
+                )
+                print(f"Delivery notification email sent to {donation.donor.email}")
+            except Exception as e:
+                print(f"Failed to send delivery email: {e}")
 
         return Response({'status': 'Status updated successfully', 'new_status': new_status})
